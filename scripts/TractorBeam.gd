@@ -62,3 +62,8 @@ func _draw() -> void:
 	draw_colored_polygon(points, beam_color)
 	draw_polyline(points + PackedVector2Array([points[0]]),
 		Color(0.6, 1.0, 1.0, 0.7), 2.0)
+
+
+func _exit_tree() -> void:
+	if _player_inside:
+		_set_player_captured(false)

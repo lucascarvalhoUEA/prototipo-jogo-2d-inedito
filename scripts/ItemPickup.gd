@@ -4,7 +4,7 @@
 
 extends Area2D
 
-enum ItemType { MEDKIT, BOOST, SHIELD, EXTRA_CHUTE, STAR }
+enum ItemType { MEDKIT, BOOST, SHIELD, BOMB, STAR }
 
 var item_type: ItemType = ItemType.STAR
 var _fall_speed: float = 90.0
@@ -15,7 +15,7 @@ const TYPE_DATA: Dictionary = {
 	0: { "color": Color(0.2, 0.9, 0.3), "icon": "💊", "label": "+VIDA" },   # MEDKIT
 	1: { "color": Color(1.0, 0.8, 0.1), "icon": "⚡", "label": "TURBO" },  # BOOST
 	2: { "color": Color(0.3, 0.6, 1.0), "icon": "🛡", "label": "ESCUDO" }, # SHIELD
-	3: { "color": Color(0.9, 0.5, 0.1), "icon": "🪂", "label": "+PÁRA" },  # EXTRA_CHUTE
+	3: { "color": Color(0.9, 0.5, 0.1), "icon": "💣", "label": "BOMBA!" },  # BOMB
 	4: { "color": Color(1.0, 1.0, 0.2), "icon": "⭐", "label": "+500" },   # STAR
 }
 
@@ -59,8 +59,10 @@ func _apply_effect(player: Node) -> void:
 			player.call("activate_speed_boost", 2.0, 5.0)
 		ItemType.SHIELD:
 			player.call("activate_shield")
-		ItemType.EXTRA_CHUTE:
-			player.set("is_chute_folded", false)
+		ItemType.BOMB:
+			var game = get_tree().current_scene
+			if game.has_method("_clear_enemies"):
+				game.call("_clear_enemies")
 		ItemType.STAR:
 			GameManager.add_score(500)
 
