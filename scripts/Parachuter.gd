@@ -41,6 +41,8 @@ var _blink_active: bool = false
 func _ready() -> void:
 	_setup_sprite()
 	_update_sprite()
+	if damage_flash:
+		damage_flash.queue_free()
 	invincibility_timer.timeout.connect(_on_invincibility_timer_timeout)
 
 func _setup_sprite() -> void:
@@ -145,9 +147,10 @@ func take_damage() -> void:
 
 
 func _flash_damage() -> void:
-	damage_flash.visible = true
+	var original_modulate = modulate
+	modulate = Color(1, 0.2, 0.2, 1.0) # Tint red
 	await get_tree().create_timer(0.12).timeout
-	damage_flash.visible = false
+	modulate = original_modulate
 
 
 func _start_invincibility() -> void:

@@ -11,6 +11,12 @@ var _beam: Node2D = null
 func _on_ready() -> void:
 	_setup_sprite()
 	_beam = $TractorBeam as Node2D
+	if _beam:
+		_beam.position = Vector2(0, 22)
+		_beam.beam_width_top = 70.0
+		_beam.beam_width_bottom = 220.0
+		_beam.beam_color = Color(0.6, 0.1, 0.9, 0.25)
+	
 	damage_on_contact = true
 	score_value = 250
 	

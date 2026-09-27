@@ -60,9 +60,18 @@ func _draw() -> void:
 		Vector2(-beam_width_bottom * 0.5, beam_length)
 	])
 	draw_colored_polygon(points, beam_color)
-	draw_polyline(points + PackedVector2Array([points[0]]),
-		Color(0.6, 1.0, 1.0, 0.7), 2.0)
-
+	
+	var inner_points := PackedVector2Array([
+		Vector2(-beam_width_top * 0.2, 0),
+		Vector2(beam_width_top * 0.2, 0),
+		Vector2(beam_width_bottom * 0.2, beam_length),
+		Vector2(-beam_width_bottom * 0.2, beam_length)
+	])
+	var core_color = beam_color
+	core_color.s *= 0.5
+	core_color.v = 1.0
+	core_color.a += 0.2
+	draw_colored_polygon(inner_points, core_color)
 
 func _exit_tree() -> void:
 	if _player_inside:

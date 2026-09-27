@@ -91,17 +91,19 @@ func _on_player_landed(landing_speed: float) -> void:
 	spawn_manager.call("stop")
 
 	# Se aterrissar rápido demais (esmagando o botão para baixo), espatifa e perde vida!
-	if landing_speed > 250.0:
+	if landing_speed > 350.0:
 		_handle_life_lost("ESPATIFOU!")
 		return
 
+	var dist: float = abs(player.global_position.x - landing_zone.global_position.x)
 	var bonus: int
-	if landing_speed < 160.0:
+	
+	if dist < 45.0:
 		bonus = 500
 		_show_feedback("POUSO PERFEITO! +500", Color.GREEN)
 	else:
 		bonus = 200
-		_show_feedback("POUSO DURO! +200", Color.YELLOW)
+		_show_feedback("POUSO NA BORDA! +200", Color.YELLOW)
 	GameManager.add_score(bonus + PHASE_SCORE_BONUS)
 
 	await get_tree().create_timer(2.0).timeout
