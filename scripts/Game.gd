@@ -22,6 +22,7 @@ func _ready() -> void:
 	GameManager.phase_complete.connect(_on_phase_complete)
 	player.hit_by_alien.connect(_on_player_hit_by_alien)
 	GameManager.start_new_game()
+	_setup_background()
 	_setup_landing_zone()
 	
 	var p_handler = Node.new()
@@ -219,3 +220,20 @@ func _show_feedback(text: String, color: Color) -> void:
 	tween.tween_property(lbl, "position:y", lbl.position.y - 70.0, 1.4)
 	tween.parallel().tween_property(lbl, "modulate:a", 0.0, 1.4)
 	tween.tween_callback(lbl.queue_free)
+
+
+
+func _setup_background() -> void:
+	var img = Image.new()
+	if img.load("res://assets/backgrounds/space_bg.png") == OK:
+		var tex = ImageTexture.create_from_image(img)
+		var tr = TextureRect.new()
+		tr.texture = tex
+		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tr.size = get_viewport_rect().size
+		# Escurece a imagem HD para não poluir visualmente e destacar as entidades (quase preto)
+		tr.modulate = Color(0.12, 0.12, 0.18, 1.0) 
+		add_child(tr)
+		move_child(tr, 0)
+
+

@@ -53,6 +53,10 @@ func _on_area_2d_body_entered(body: Node) -> void:
 		var cb := body as CharacterBody2D
 		if cb == null:
 			return
+		# Garante que o jogador está vindo de cima (evita pouso de lado)
+		if cb.global_position.y > global_position.y:
+			return
+			
 		var speed: float = absf(cb.velocity.y)
 		if speed > 10.0:
 			_player_on_zone = true

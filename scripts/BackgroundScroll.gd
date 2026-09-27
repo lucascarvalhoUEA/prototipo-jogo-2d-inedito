@@ -57,10 +57,9 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	# Gradiente de fundo (céu → terra)
+	# Gradiente de fundo removido para exibir a arte HD
 	var progress: float = clamp(_scroll_y / 2000.0, 0.0, 1.0)
-	var sky_color: Color = Color(0.02, 0.02, 0.12, 1).lerp(Color(0.4, 0.6, 0.9, 1), progress)
-	draw_rect(Rect2(Vector2.ZERO, _screen), sky_color)
+	# draw_rect(Rect2(Vector2.ZERO, _screen), sky_color)
 
 	# Estrelas (só visíveis quando no espaço/alta altitude)
 	var star_alpha: float = 1.0 - progress

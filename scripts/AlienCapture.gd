@@ -9,6 +9,7 @@ extends AlienBase
 var _beam: Node2D = null
 
 func _on_ready() -> void:
+	_setup_sprite()
 	_beam = $TractorBeam as Node2D
 	damage_on_contact = true
 	score_value = 250
@@ -40,3 +41,18 @@ func _move(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, acceleration * delta)
 	
 	velocity.y = 0.0
+
+func _setup_sprite() -> void:
+	var old_sprite = get_node_or_null("Sprite2D")
+	if old_sprite:
+		old_sprite.queue_free()
+	
+	var spr = Sprite2D.new()
+	spr.name = "MainSprite"
+	var img = Image.new()
+	if img.load("res://assets/sprites/alien_capture.png") == OK:
+		img.generate_mipmaps()
+		spr.texture = ImageTexture.create_from_image(img)
+	spr.scale = Vector2(0.12, 0.12)
+	add_child(spr)
+	move_child(spr, 0)

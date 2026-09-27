@@ -13,6 +13,7 @@ var _screen_width: float = 1280.0
 
 
 func _on_ready() -> void:
+	_setup_sprite()
 	_screen_width = get_viewport_rect().size.x
 	_drift_dir = 1.0 if randf() > 0.5 else -1.0
 	damage_on_contact = true
@@ -31,7 +32,9 @@ func _move(delta: float) -> void:
 	_fire_timer += delta
 	if _fire_timer >= fire_interval:
 		_fire_timer = 0.0
-		_shoot()
+		# Só atira se estiver dentro da área visível da tela
+		if position.x > 0 and position.x < _screen_width and position.y > 0 and position.y < get_viewport_rect().size.y:
+			_shoot()
 
 
 func _shoot() -> void:
@@ -79,3 +82,19 @@ func _on_projectile_hit(body: Node, proj: Node) -> void:
 		body.call("take_damage")
 	if is_instance_valid(proj):
 		proj.queue_free()
+
+func _setup_sprite() -> void:
+	var old_sprite = get_node_or_null("Sprite2D")
+	if old_sprite:
+		old_sprite.queue_free()
+	
+	var spr = Sprite2D.new()
+	spr.name = "MainSprite"
+	var img = Image.new()
+	if img.load("res://assets/sprites/alien_shooter.png") == OK:
+		img.generate_mipmaps()
+		spr.texture = ImageTexture.create_from_image(img)
+	spr.scale = Vector2(0.14, 0.14)
+	add_child(spr)
+	move_child(spr, 0)
+

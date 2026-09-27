@@ -41,6 +41,26 @@ func _update_visual() -> void:
 	var glow: Polygon2D = $GlowRect
 	lbl.text = data["icon"]
 	glow.color = data["color"]
+	
+	# Load specific sprites for powerups
+	var sprite_path = ""
+	match item_type:
+		ItemType.MEDKIT: sprite_path = "res://assets/sprites/powerup_medkit.png"
+		ItemType.BOOST: sprite_path = "res://assets/sprites/powerup_speed.png"
+		ItemType.SHIELD: sprite_path = "res://assets/sprites/powerup_shield.png"
+		ItemType.BOMB: sprite_path = "res://assets/sprites/powerup_bomb.png"
+		ItemType.STAR: sprite_path = "res://assets/sprites/powerup_star.png"
+		
+	if sprite_path != "":
+		var img = Image.new()
+		if img.load(sprite_path) == OK:
+			img.generate_mipmaps()
+			var spr = Sprite2D.new()
+			spr.texture = ImageTexture.create_from_image(img)
+			spr.scale = Vector2(0.06, 0.06)
+			add_child(spr)
+			lbl.visible = false
+			glow.visible = false
 
 
 func _on_body_entered(body: Node) -> void:

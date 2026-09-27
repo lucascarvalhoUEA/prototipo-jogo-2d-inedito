@@ -39,8 +39,28 @@ var _blink_active: bool = false
 
 
 func _ready() -> void:
+	_setup_sprite()
 	_update_sprite()
 	invincibility_timer.timeout.connect(_on_invincibility_timer_timeout)
+
+func _setup_sprite() -> void:
+	# Oculta/deleta os polígonos antigos
+	if sprite_open: sprite_open.queue_free()
+	if sprite_folded: sprite_folded.queue_free()
+	
+	var spr = Sprite2D.new()
+	spr.name = "MainSprite"
+	var img = Image.new()
+	if img.load("res://assets/sprites/parachuter.png") == OK:
+		img.generate_mipmaps()
+		spr.texture = ImageTexture.create_from_image(img)
+	spr.scale = Vector2(0.14, 0.14)
+	
+	# Ajuste do ponto de ancoragem para os pés ficarem no centro do colisor original
+	spr.position = Vector2(0, -32) 
+	
+	add_child(spr)
+	move_child(spr, 0)
 
 
 func _physics_process(delta: float) -> void:
@@ -194,8 +214,13 @@ func die() -> void:
 # ── Utilitários ───────────────────────────────────────────────────────────────
 
 func _update_sprite() -> void:
-	sprite_open.visible = not is_chute_folded
-	sprite_folded.visible = is_chute_folded
+	var main_spr = get_node_or_null("MainSprite")
+	if main_spr:
+		if is_chute_folded:
+			main_spr.scale = Vector2(0.10, 0.17) # Efeito esticado para o mergulho
+		else:
+			main_spr.scale = Vector2(0.14, 0.14) # Normal
+			
 	emit_signal("chute_folded", is_chute_folded)
 
 

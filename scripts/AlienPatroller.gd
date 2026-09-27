@@ -11,6 +11,7 @@ var _screen_width: float = 1280.0
 
 
 func _on_ready() -> void:
+	_setup_sprite()
 	_screen_width = get_viewport_rect().size.x
 	_direction = 1.0 if randf() > 0.5 else -1.0
 	# Bob vertical suave
@@ -36,5 +37,21 @@ func _move(_delta: float) -> void:
 
 
 func _flip_sprite() -> void:
-	var spr: Node2D = $Sprite2D
-	spr.set("flip_h", _direction < 0.0)
+	var spr: Sprite2D = get_node_or_null("MainSprite")
+	if spr:
+		spr.flip_h = _direction < 0.0
+
+func _setup_sprite() -> void:
+	var old_sprite = get_node_or_null("Sprite2D")
+	if old_sprite:
+		old_sprite.queue_free()
+	
+	var spr = Sprite2D.new()
+	spr.name = "MainSprite"
+	var img = Image.new()
+	if img.load("res://assets/sprites/alien_patroller.png") == OK:
+		img.generate_mipmaps()
+		spr.texture = ImageTexture.create_from_image(img)
+	spr.scale = Vector2(0.13, 0.13)
+	add_child(spr)
+	move_child(spr, 0)
