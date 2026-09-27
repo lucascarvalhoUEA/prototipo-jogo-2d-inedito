@@ -90,13 +90,13 @@ func get_alien_speed_multiplier() -> float:
 
 
 func get_spawn_interval() -> float:
-	var base := 1.2
-	return max(base - (phase - 1) * 0.15, 0.45)  # mínimo 0.45s
+	var base := 2.0
+	return max(base - (phase - 1) * 0.2, 0.7)  # mínimo 0.7s
 
 
 func get_initial_alien_count() -> int:
-	# Aliens que aparecem imediatamente ao início da fase
-	return mini(1 + (phase - 1), 4)  # 1 no fase 1, até 4 no fase 4+
+	# Aliens que aparecem imediatamente ao início da fase (máximo de 1 para evitar sobrecarga)
+	return 1 if phase > 1 else 0
 
 
 func get_landing_zone_width() -> float:

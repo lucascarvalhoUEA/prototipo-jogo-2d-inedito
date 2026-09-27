@@ -1,58 +1,42 @@
 ## AlienCapture.gd
-## Alien com feixe de tração. Fica parado ou se move lentamente no topo da tela,
-## disparando o feixe periodicamente para tentar capturar o jogador.
+## Alien com feixe de tração PERMANENTE.
+## Ele persegue ativamente o eixo X do jogador para tentar sugá-lo.
 
 extends AlienBase
 
-@export var beam_interval: float = 3.0
-@export var beam_duration: float = 2.0
-@export var drift_speed: float = 60.0
-
+@export var max_drift_speed: float = 70.0
+@export var acceleration: float = 120.0
 var _beam: Node2D = null
-var _beam_active: bool = false
-var _beam_timer: float = 0.0
-var _drift_dir: float = 1.0
-var _screen_width: float = 1280.0
-
 
 func _on_ready() -> void:
-	_screen_width = get_viewport_rect().size.x
-	_drift_dir = 1.0 if randf() > 0.5 else -1.0
 	_beam = $TractorBeam as Node2D
-	damage_on_contact = false
-	score_value = 200
-	if _beam:
-		_beam.call("set_active", false)
-	var start_y: float = position.y
-	var tween := create_tween().set_loops()
-	tween.tween_property(self, "position:y", start_y + 10.0, 1.0).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(self, "position:y", start_y - 10.0, 1.0).set_ease(Tween.EASE_IN_OUT)
+	damage_on_contact = true
+	score_value = 250
+	
+	# Entrada suave na tela
+	var target_y := randf_range(50.0, 100.0)
+	var entry_tween := create_tween()
+	entry_tween.tween_property(self, "position:y", target_y, 1.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	entry_tween.tween_callback(_start_floating.bind(target_y))
 
+func _start_floating(base_y: float) -> void:
+	var tween := create_tween().set_loops()
+	tween.tween_property(self, "position:y", base_y + 12.0, 1.5).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(self, "position:y", base_y - 12.0, 1.5).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 
 func _move(delta: float) -> void:
-	velocity.x = drift_speed * speed_multiplier * _drift_dir
+	# Encontra o jogador e o persegue no eixo X
+	var player = get_tree().get_first_node_in_group("player")
+	if player and is_instance_valid(player):
+		var diff = player.global_position.x - global_position.x
+		# Move na direção do jogador, mas com inércia para não ser tão agressivo
+		if abs(diff) > 15.0:
+			var dir = sign(diff)
+			var target_vel = max_drift_speed * speed_multiplier * dir
+			velocity.x = move_toward(velocity.x, target_vel, acceleration * delta)
+		else:
+			velocity.x = move_toward(velocity.x, 0.0, acceleration * delta)
+	else:
+		velocity.x = move_toward(velocity.x, 0.0, acceleration * delta)
+	
 	velocity.y = 0.0
-	if position.x >= _screen_width - 40.0 and _drift_dir > 0.0:
-		_drift_dir = -1.0
-	elif position.x <= 40.0 and _drift_dir < 0.0:
-		_drift_dir = 1.0
-
-	_beam_timer += delta
-	if not _beam_active and _beam_timer >= beam_interval:
-		_activate_beam()
-	elif _beam_active and _beam_timer >= beam_duration:
-		_deactivate_beam()
-
-
-func _activate_beam() -> void:
-	_beam_active = true
-	_beam_timer = 0.0
-	if _beam:
-		_beam.call("set_active", true)
-
-
-func _deactivate_beam() -> void:
-	_beam_active = false
-	_beam_timer = 0.0
-	if _beam:
-		_beam.call("set_active", false)

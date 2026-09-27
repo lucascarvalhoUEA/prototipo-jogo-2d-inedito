@@ -46,22 +46,6 @@ func _draw() -> void:
 	draw_rect(rect, col, true)
 	draw_rect(rect, Color.WHITE, false, 2.0)
 
-	# Seta indicadora (acima da zona)
-	var arrow_y: float = -zone_height * 0.5 - 30.0
-	var pts := PackedVector2Array([
-		Vector2(0, arrow_y + 20),
-		Vector2(-12, arrow_y),
-		Vector2(12, arrow_y),
-	])
-	draw_colored_polygon(pts, Color(0.2, 1.0, 0.4, 0.8 if _blink_on else 0.3))
-
-	# Texto "POUSE AQUI"
-	draw_string(ThemeDB.fallback_font,
-		Vector2(-45, -zone_height * 0.5 - 42),
-		"POUSE AQUI",
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1, 14,
-		Color(1, 1, 1, 0.9 if _blink_on else 0.4))
 
 
 func _on_area_2d_body_entered(body: Node) -> void:

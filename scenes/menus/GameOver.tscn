@@ -5,29 +5,6 @@
 [node name="GameOver" type="Node2D"]
 script = ExtResource("1_go")
 
-[node name="AlienFace" type="Node2D" parent="."]
-position = Vector2(640, 200)
-
-[node name="FaceBody" type="Polygon2D" parent="AlienFace"]
-polygon = PackedVector2Array(-80, -90, 80, -90, 110, 20, 80, 90, -80, 90, -110, 20)
-color = Color(0.15, 0.08, 0.22, 1)
-
-[node name="EyeLeft" type="Polygon2D" parent="AlienFace"]
-position = Vector2(-30, -30)
-polygon = PackedVector2Array(-20, -12, 20, -12, 20, 12, -20, 12)
-color = Color(0.3, 0.9, 0.3, 1)
-
-[node name="EyeRight" type="Polygon2D" parent="AlienFace"]
-position = Vector2(30, -30)
-polygon = PackedVector2Array(-20, -12, 20, -12, 20, 12, -20, 12)
-color = Color(0.3, 0.9, 0.3, 1)
-
-[node name="Mouth" type="Line2D" parent="AlienFace"]
-position = Vector2(0, 35)
-points = PackedVector2Array(-30, 0, -10, 12, 10, 12, 30, 0)
-width = 3.0
-default_color = Color(0.3, 0.9, 0.3, 0.8)
-
 [node name="UILayer" type="CanvasLayer" parent="."]
 layer = 1
 

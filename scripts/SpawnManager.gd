@@ -23,7 +23,7 @@ func _ready() -> void:
 func start() -> void:
 	_active = true
 	_spawn_timer = 0.0
-	_item_timer = randf_range(4.0, 8.0)
+	_item_timer = randf_range(2.0, 5.0)
 	# Spawna aliens imediatamente no início da fase
 	var count: int = GameManager.get_initial_alien_count()
 	for i in range(count):
@@ -49,7 +49,7 @@ func _process(delta: float) -> void:
 		_spawn_alien()
 
 	if _item_timer <= 0.0:
-		_item_timer = randf_range(5.0, 10.0)
+		_item_timer = randf_range(6.0, 10.0)
 		_spawn_item()
 
 
@@ -75,8 +75,20 @@ func _spawn_alien() -> void:
 	if scene == null:
 		return
 
+	# Limita o AlienCapture a apenas 1 na tela para agir como um "Mini-Boss" de perseguição
+	if scene == alien_capture_scene:
+		var capture_count: int = 0
+		for child in get_parent().get_children():
+			if child.name.begins_with("AlienCapture") and not child.is_queued_for_deletion():
+				capture_count += 1
+		if capture_count >= 1:
+			scene = alien_patroller_scene
+
 	var alien: Node2D = scene.instantiate()
-	alien.position = _random_spawn_position()
+	if scene == alien_capture_scene:
+		alien.position = Vector2(randf_range(80, _screen_size.x - 80), -60)
+	else:
+		alien.position = _random_spawn_position()
 	get_parent().add_child(alien)
 
 
@@ -99,6 +111,7 @@ func _spawn_item() -> void:
 	if item_scene == null:
 		return
 	var item: Node2D = item_scene.instantiate()
+	item.add_to_group("item")
 	item.position = Vector2(randf_range(80, _screen_size.x - 80), -40)
 	get_parent().add_child(item)
 

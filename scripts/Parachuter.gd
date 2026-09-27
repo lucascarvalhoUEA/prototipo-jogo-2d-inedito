@@ -14,11 +14,12 @@ signal chute_folded(is_folded: bool)
 @export var horizontal_speed: float = 320.0
 @export var fall_speed_open: float = 140.0
 @export var fall_speed_folded: float = 420.0
-@export var tractor_pull_speed: float = 90.0
+@export var tractor_pull_speed: float = 250.0
 
 # ── Estado interno ────────────────────────────────────────────────────────────
 var is_chute_folded: bool = false
 var is_captured: bool = false
+var _capture_count: int = 0
 var is_dead: bool = false
 var is_landed: bool = false
 var shield_active: bool = false
@@ -111,16 +112,16 @@ func deactivate_shield() -> void:
 # ── Colisão com alien ─────────────────────────────────────────────────────────
 
 func take_damage() -> void:
-	if _invincible or is_dead:
+	if _invincible or is_dead or is_landed:
 		return
 	if shield_active:
 		deactivate_shield()
 		_flash_damage()
+		_start_invincibility()
 		return
+	# Se não tem escudo, emite o sinal para o Game.gd resetar a fase
 	emit_signal("hit_by_alien")
-	GameManager.lose_life()
 	_flash_damage()
-	_start_invincibility()
 
 
 func _flash_damage() -> void:
@@ -154,8 +155,19 @@ func _on_invincibility_timer_timeout() -> void:
 
 # ── Feixe de tração ───────────────────────────────────────────────────────────
 
-func set_captured(value: bool) -> void:
-	is_captured = value
+func add_capture() -> void:
+	_capture_count += 1
+	is_captured = _capture_count > 0
+
+
+func remove_capture() -> void:
+	_capture_count = max(0, _capture_count - 1)
+	is_captured = _capture_count > 0
+
+
+func reset_capture() -> void:
+	_capture_count = 0
+	is_captured = false
 
 
 # ── Pouso ─────────────────────────────────────────────────────────────────────

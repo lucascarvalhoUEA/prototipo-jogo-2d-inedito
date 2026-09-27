@@ -33,9 +33,9 @@ shape = SubResource("CapsuleShape2D_1")
 [node name="TractorBeam" type="Node2D" parent="."]
 position = Vector2(0, 14)
 script = ExtResource("2_beam")
-beam_length = 220.0
-beam_width_top = 18.0
-beam_width_bottom = 90.0
+beam_length = 350.0
+beam_width_top = 40.0
+beam_width_bottom = 140.0
 beam_color = Color(0.5, 0.2, 1.0, 0.4)
 
 [node name="Area2D" type="Area2D" parent="TractorBeam"]

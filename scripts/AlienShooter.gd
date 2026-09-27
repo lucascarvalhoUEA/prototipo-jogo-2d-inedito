@@ -46,6 +46,7 @@ func _shoot() -> void:
 
 func _create_projectile() -> RigidBody2D:
 	var proj := RigidBody2D.new()
+	proj.add_to_group("projectile")
 	proj.gravity_scale = 0.0
 	proj.collision_layer = 4
 	proj.collision_mask = 2

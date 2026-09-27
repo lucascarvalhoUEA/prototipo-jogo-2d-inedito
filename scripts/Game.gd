@@ -20,21 +20,27 @@ var _handling_phase: bool = false   # guarda para evitar chamadas duplas
 func _ready() -> void:
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.phase_complete.connect(_on_phase_complete)
+	player.hit_by_alien.connect(_on_player_hit_by_alien)
 	GameManager.start_new_game()
 	_setup_landing_zone()
+	
+	var p_handler = Node.new()
+	p_handler.name = "PauseHandler"
+	p_handler.process_mode = Node.PROCESS_MODE_ALWAYS
+	p_handler.set_script(preload("res://scripts/PauseHandler.gd"))
+	add_child(p_handler)
+	
 	_start_phase()
 
 
 func _process(delta: float) -> void:
 	if not _game_running:
 		return
-	if Input.is_action_just_pressed("pause_game"):
-		_toggle_pause()
 
 	# Detecta paraquedista saindo pela base da tela (falhou no pouso)
 	var screen_h: float = get_viewport_rect().size.y
 	if player.position.y > screen_h + 80.0 and not _handling_phase:
-		_on_player_fell_off()
+		_handle_life_lost("PASSOU DIRETO!")
 
 
 # ── Fase ──────────────────────────────────────────────────────────────────────
@@ -48,10 +54,18 @@ func _start_phase() -> void:
 
 
 func _setup_landing_zone() -> void:
-	var vp: Rect2 = get_viewport_rect()
-	landing_zone.position = Vector2(vp.size.x * 0.5, vp.size.y - LANDING_ZONE_Y_OFFSET)
 	_update_landing_zone_width()
-	# NÃO conectar aqui — a conexão já está no arquivo .tscn
+	_randomize_landing_zone()
+
+
+func _randomize_landing_zone() -> void:
+	var vp: Rect2 = get_viewport_rect()
+	var zone_w: float = GameManager.get_landing_zone_width()
+	# Randomiza o X entre as bordas, deixando uma margem de segurança
+	var min_x: float = zone_w * 0.5 + 40.0
+	var max_x: float = vp.size.x - (zone_w * 0.5) - 40.0
+	var random_x: float = randf_range(min_x, max_x)
+	landing_zone.position = Vector2(random_x, vp.size.y - LANDING_ZONE_Y_OFFSET)
 
 
 func _update_landing_zone_width() -> void:
@@ -75,6 +89,11 @@ func _on_player_landed(landing_speed: float) -> void:
 	_game_running = false
 	spawn_manager.call("stop")
 
+	# Se aterrissar rápido demais (esmagando o botão para baixo), espatifa e perde vida!
+	if landing_speed > 250.0:
+		_handle_life_lost("ESPATIFOU!")
+		return
+
 	var bonus: int
 	if landing_speed < 160.0:
 		bonus = 500
@@ -88,23 +107,31 @@ func _on_player_landed(landing_speed: float) -> void:
 	GameManager.next_phase()
 
 
-# ── Saiu da tela pelo fundo (errou o pouso) ───────────────────────────────────
+# ── Perda de vida (caiu pra fora ou foi atingido) ────────────────────────────
 
-func _on_player_fell_off() -> void:
+func _on_player_hit_by_alien() -> void:
+	if _handling_phase:
+		return
+	_handle_life_lost("ATINGIDO!")
+
+
+func _handle_life_lost(message: String) -> void:
 	_handling_phase = true
 	_game_running = false
 	spawn_manager.call("stop")
+	player.call("die")
 	GameManager.lose_life()
 
 	# Se ainda tem vidas, respawna na próxima fase
 	if GameManager.lives > 0:
-		_show_feedback("PERDEU UMA VIDA!", Color.RED)
+		_show_feedback(message, Color.RED)
 		await get_tree().create_timer(1.5).timeout
 		
 		# Desativa a zona de pouso durante o teletransporte
 		var area: Area2D = landing_zone.get_node("Area2D")
 		area.monitoring = false
 		
+		_clear_enemies()
 		_reset_player_position()
 		
 		await get_tree().physics_frame
@@ -123,10 +150,7 @@ func _on_phase_complete() -> void:
 
 
 func _reset_phase() -> void:
-	# Remove aliens existentes
-	for child in get_children():
-		if child.is_in_group("alien"):
-			child.queue_free()
+	_clear_enemies()
 	
 	# Desativa a zona de pouso temporariamente para evitar colisão falsa do respawn
 	var area: Area2D = landing_zone.get_node("Area2D")
@@ -134,6 +158,7 @@ func _reset_phase() -> void:
 	
 	_reset_player_position()
 	_update_landing_zone_width()
+	_randomize_landing_zone()
 	
 	# Espera o motor físico atualizar a nova posição do jogador
 	await get_tree().physics_frame
@@ -143,13 +168,19 @@ func _reset_phase() -> void:
 	_start_phase()
 
 
+func _clear_enemies() -> void:
+	for child in get_children():
+		if child.is_in_group("alien") or child.is_in_group("projectile") or child.is_in_group("item"):
+			child.queue_free()
+
+
 func _reset_player_position() -> void:
 	var vp: Rect2 = get_viewport_rect()
 	player.position = Vector2(vp.size.x * 0.5, 80.0)
 	player.velocity = Vector2.ZERO
 	player.set("is_landed", false)
 	player.set("is_dead", false)
-	player.set("is_captured", false)
+	player.call("reset_capture")
 	player.set("_blink_active", false)
 	player.modulate.a = 1.0
 	landing_zone.call("reset")   # limpa o flag de colisão para o próximo pouso
