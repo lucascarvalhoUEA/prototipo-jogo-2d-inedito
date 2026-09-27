@@ -1,0 +1,86 @@
+[gd_scene load_steps=3 format=3 uid="uid://alien_drop_parachuter"]
+
+[ext_resource type="Script" path="res://scripts/Parachuter.gd" id="1_parachuter"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 18.0
+height = 48.0
+
+[node name="Parachuter" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_parachuter")
+
+[node name="SpriteOpen" type="Node2D" parent="."]
+
+[node name="ChuteBody" type="Node2D" parent="SpriteOpen"]
+position = Vector2(0, -28)
+
+[node name="ChuteLeft" type="Line2D" parent="SpriteOpen/ChuteBody"]
+points = PackedVector2Array(-22, 0, -10, 28)
+width = 1.5
+default_color = Color(0.8, 0.6, 0.2, 1)
+
+[node name="ChuteRight" type="Line2D" parent="SpriteOpen/ChuteBody"]
+points = PackedVector2Array(22, 0, 10, 28)
+width = 1.5
+default_color = Color(0.8, 0.6, 0.2, 1)
+
+[node name="ChuteCanopy" type="Polygon2D" parent="SpriteOpen/ChuteBody"]
+polygon = PackedVector2Array(-22, 0, 0, -18, 22, 0, 10, 8, -10, 8)
+color = Color(0.9, 0.2, 0.2, 1)
+
+[node name="BodyPerson" type="Polygon2D" parent="SpriteOpen"]
+position = Vector2(0, 8)
+polygon = PackedVector2Array(-8, -12, 8, -12, 10, 12, -10, 12)
+color = Color(0.2, 0.5, 0.9, 1)
+
+[node name="Head" type="Polygon2D" parent="SpriteOpen"]
+position = Vector2(0, -8)
+polygon = PackedVector2Array(-6, -8, 6, -8, 8, 0, -8, 0)
+color = Color(0.95, 0.8, 0.65, 1)
+
+[node name="SpriteFolded" type="Node2D" parent="."]
+visible = false
+
+[node name="ChuteBodyFolded" type="Node2D" parent="SpriteFolded"]
+position = Vector2(0, -20)
+
+[node name="ChuteFoldedShape" type="Polygon2D" parent="SpriteFolded/ChuteBodyFolded"]
+polygon = PackedVector2Array(-6, 0, 6, 0, 4, 16, -4, 16)
+color = Color(0.6, 0.15, 0.15, 1)
+
+[node name="BodyFolded" type="Polygon2D" parent="SpriteFolded"]
+position = Vector2(0, 8)
+polygon = PackedVector2Array(-8, -12, 8, -12, 10, 12, -10, 12)
+color = Color(0.2, 0.5, 0.9, 1)
+
+[node name="HeadFolded" type="Polygon2D" parent="SpriteFolded"]
+position = Vector2(0, -8)
+polygon = PackedVector2Array(-6, -8, 6, -8, 8, 0, -8, 0)
+color = Color(0.95, 0.8, 0.65, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="DamageFlash" type="ColorRect" parent="."]
+visible = false
+offset_left = -20.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = 30.0
+color = Color(1, 0.2, 0.2, 0.5)
+
+[node name="ShieldVisual" type="Node2D" parent="."]
+visible = false
+
+[node name="ShieldRing" type="Line2D" parent="ShieldVisual"]
+points = PackedVector2Array(0, -30, 21, -21, 30, 0, 21, 21, 0, 30, -21, 21, -30, 0, -21, -21, 0, -30)
+width = 3.0
+default_color = Color(0.3, 0.6, 1, 0.8)
+
+[node name="InvincibilityTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

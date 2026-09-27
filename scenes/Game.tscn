@@ -1,0 +1,128 @@
+[gd_scene load_steps=12 format=3 uid="uid://game_scene"]
+
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_game"]
+[ext_resource type="Script" path="res://scripts/HUD.gd" id="2_hud"]
+[ext_resource type="Script" path="res://scripts/BackgroundScroll.gd" id="3_bg"]
+[ext_resource type="Script" path="res://scripts/SpawnManager.gd" id="4_spawn"]
+[ext_resource type="PackedScene" path="res://scenes/player/Parachuter.tscn" id="5_player"]
+[ext_resource type="PackedScene" path="res://scenes/world/LandingZone.tscn" id="6_lz"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/AlienPatroller.tscn" id="7_patroller"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/AlienCapture.tscn" id="8_capture"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/AlienShooter.tscn" id="9_shooter"]
+[ext_resource type="PackedScene" path="res://scenes/world/ItemPickup.tscn" id="10_item"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_game")
+
+[node name="BackgroundScroll" type="Node2D" parent="."]
+script = ExtResource("3_bg")
+
+[node name="Parachuter" parent="." instance=ExtResource("5_player")]
+position = Vector2(640, 80)
+
+[node name="LandingZone" parent="." instance=ExtResource("6_lz")]
+position = Vector2(640, 640)
+
+[node name="SpawnManager" type="Node" parent="."]
+script = ExtResource("4_spawn")
+alien_patroller_scene = ExtResource("7_patroller")
+alien_capture_scene = ExtResource("8_capture")
+alien_shooter_scene = ExtResource("9_shooter")
+item_scene = ExtResource("10_item")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("2_hud")
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 300.0
+offset_bottom = 48.0
+text = "PONTOS: 000000"
+theme_override_font_sizes/font_size = 22
+
+[node name="LivesContainer" type="HBoxContainer" parent="HUD"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -160.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 50.0
+
+[node name="PhaseLabel" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_top = 0.0
+anchor_right = 0.5
+anchor_bottom = 0.0
+offset_left = -60.0
+offset_top = 12.0
+offset_right = 60.0
+offset_bottom = 48.0
+text = "FASE 1"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+
+[node name="PhaseBanner" type="Label" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -30.0
+offset_right = 150.0
+offset_bottom = 30.0
+text = "FASE 1"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 48
+modulate = Color(1, 1, 1, 0)
+
+[node name="BeamWarning" type="Label" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = 40.0
+offset_right = 200.0
+offset_bottom = 80.0
+text = "⚠ FEIXE ALIEN! MOVA-SE! ⚠"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.3, 0.1, 1)
+theme_override_font_sizes/font_size = 20
+
+[node name="PauseOverlay" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="BG" type="ColorRect" parent="PauseOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="PauseLabel" type="Label" parent="PauseOverlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = -40.0
+offset_right = 120.0
+offset_bottom = 40.0
+text = "⏸ PAUSADO\n\nP  para continuar"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 28
+
+[connection signal="player_landed" from="LandingZone" to="." method="_on_player_landed"]

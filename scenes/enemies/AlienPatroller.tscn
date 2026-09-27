@@ -1,0 +1,46 @@
+[gd_scene load_steps=3 format=3 uid="uid://alien_patroller"]
+
+[ext_resource type="Script" path="res://scripts/AlienPatroller.gd" id="1_patroller"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 28.0
+height = 20.0
+
+[node name="AlienPatroller" type="CharacterBody2D" groups=["alien"]]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_patroller")
+
+[node name="Sprite2D" type="Node2D" parent="."]
+
+[node name="UFOBody" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-30, 0, 30, 0, 24, 12, -24, 12)
+color = Color(0.55, 0.65, 0.75, 1)
+
+[node name="UFODome" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-16, 0, 16, 0, 12, -14, -12, -14)
+color = Color(0.3, 0.85, 0.9, 0.85)
+
+[node name="LightLeft" type="Polygon2D" parent="Sprite2D"]
+position = Vector2(-20, 8)
+polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+color = Color(1, 0.9, 0.2, 1)
+
+[node name="LightCenter" type="Polygon2D" parent="Sprite2D"]
+position = Vector2(0, 10)
+polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+color = Color(0.2, 1, 0.5, 1)
+
+[node name="LightRight" type="Polygon2D" parent="Sprite2D"]
+position = Vector2(20, 8)
+polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+color = Color(1, 0.3, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-32, -16, 64, 32)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="_on_visible_on_screen_notifier_screen_exited"]

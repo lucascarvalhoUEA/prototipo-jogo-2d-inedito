@@ -1,0 +1,33 @@
+[gd_scene load_steps=3 format=3 uid="uid://alien_shooter"]
+
+[ext_resource type="Script" path="res://scripts/AlienShooter.gd" id="1_shooter"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 26.0
+height = 20.0
+
+[node name="AlienShooter" type="CharacterBody2D" groups=["alien"]]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_shooter")
+
+[node name="Sprite2D" type="Node2D" parent="."]
+
+[node name="UFOBody" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-28, 0, 28, 0, 22, 12, -22, 12)
+color = Color(0.7, 0.2, 0.15, 1)
+
+[node name="UFODome" type="Polygon2D" parent="Sprite2D"]
+polygon = PackedVector2Array(-14, 0, 14, 0, 10, -14, -10, -14)
+color = Color(1.0, 0.5, 0.3, 0.9)
+
+[node name="Cannon" type="Polygon2D" parent="Sprite2D"]
+position = Vector2(0, 12)
+polygon = PackedVector2Array(-4, 0, 4, 0, 3, 14, -3, 14)
+color = Color(0.4, 0.1, 0.1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-32, -16, 64, 32)
