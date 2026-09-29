@@ -15,6 +15,9 @@ const PHASE_SCORE_BONUS: int = 300
 var _game_running: bool = false
 var _paused: bool = false
 var _handling_phase: bool = false   # guarda para evitar chamadas duplas
+var _landing_zone_active: bool = false   # true quando a plataforma já apareceu e pode ser usada
+var _phase_timer: float = 0.0
+var _survival_duration: float = 0.0
 
 
 func _ready() -> void:
@@ -39,8 +42,18 @@ func _process(delta: float) -> void:
 	if not _game_running:
 		return
 
-	# Detecta paraquedista saindo pela base da tela (falhou no pouso)
 	var screen_h: float = get_viewport_rect().size.y
+
+	if not _landing_zone_active:
+		# Fase de sobrevivência: fundo rolando, paraquedista dá a volta ao sair pela base
+		_phase_timer += delta
+		if player.position.y > screen_h + 80.0:
+			player.position.y = -40.0
+		if _phase_timer >= _survival_duration:
+			_activate_landing_zone()
+		return
+
+	# Detecta paraquedista saindo pela base da tela (falhou no pouso)
 	if player.position.y > screen_h + 80.0 and not _handling_phase:
 		_handle_life_lost("PASSOU DIRETO!")
 
@@ -50,9 +63,13 @@ func _process(delta: float) -> void:
 func _start_phase() -> void:
 	_game_running = true
 	_handling_phase = false
+	_landing_zone_active = false
+	_phase_timer = 0.0
+	_survival_duration = GameManager.get_phase_duration()
 	spawn_manager.call("start")
 	_show_phase_banner("FASE  %d" % GameManager.phase)
 	_update_landing_zone_width()
+	_hide_landing_zone()
 
 
 func _setup_landing_zone() -> void:
@@ -72,6 +89,27 @@ func _randomize_landing_zone() -> void:
 
 func _update_landing_zone_width() -> void:
 	landing_zone.call("set_width", GameManager.get_landing_zone_width())
+
+
+func _hide_landing_zone() -> void:
+	landing_zone.visible = false
+	var area: Area2D = landing_zone.get_node("Area2D")
+	area.monitoring = false
+
+
+func _activate_landing_zone() -> void:
+	_landing_zone_active = true
+	player.position.y = 20.0   # dá tela cheia para o pouso final, de forma justa
+	_randomize_landing_zone()
+	landing_zone.call("reset")
+	landing_zone.visible = true
+	landing_zone.modulate.a = 0.0
+	var area: Area2D = landing_zone.get_node("Area2D")
+	area.monitoring = true
+	var tween := create_tween()
+	tween.tween_property(landing_zone, "modulate:a", 1.0, 0.5)
+	AudioManager.play_sfx("whoosh")
+	_show_phase_banner("PLATAFORMA DE POUSO!")
 
 
 func _show_phase_banner(text: String) -> void:

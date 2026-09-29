@@ -104,6 +104,12 @@ func get_landing_zone_width() -> float:
 	return max(base - (phase - 1) * 20.0, 120.0)  # mínimo 120px
 
 
+func get_phase_duration() -> float:
+	# Tempo de "sobrevivência" com fundo rolando antes da plataforma de pouso aparecer
+	var base := 12.0
+	return min(base + (phase - 1) * 4.0, 40.0)  # cresce a cada fase, até 40s
+
+
 # ── Persistência ──────────────────────────────────────────────────────────────
 
 func save_high_score() -> void:
