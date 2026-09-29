@@ -56,6 +56,7 @@ func _on_body_entered(body: Node) -> void:
 # ── Destruição ────────────────────────────────────────────────────────────────
 
 func destroy() -> void:
+	Effects.spawn_burst(get_tree().current_scene, global_position, Color(1.0, 0.6, 0.1), 20, 240.0, 0.6)
 	GameManager.add_score(score_value)
 	emit_signal("alien_destroyed")
 	queue_free()

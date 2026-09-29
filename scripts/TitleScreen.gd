@@ -15,6 +15,8 @@ var _blink_timer: float = 0.0
 var _blink_on: bool = true
 
 func _ready() -> void:
+	AudioManager.play_music()
+
 	# Ocultar o texto cinza na parte inferior
 	if credits_label:
 		credits_label.visible = false

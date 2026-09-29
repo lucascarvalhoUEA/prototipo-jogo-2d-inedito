@@ -40,6 +40,7 @@ func _move(delta: float) -> void:
 func _shoot() -> void:
 	if not is_instance_valid(_player):
 		return
+	AudioManager.play_sfx("laser")
 	var dir: Vector2 = (_player.global_position - global_position).normalized()
 	var proj: RigidBody2D = _create_projectile()
 	proj.global_position = global_position

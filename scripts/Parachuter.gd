@@ -38,8 +38,12 @@ var _invincible: bool = false
 var _blink_active: bool = false
 
 
+var _dive_trail: CPUParticles2D
+
+
 func _ready() -> void:
 	_setup_sprite()
+	_setup_dive_trail()
 	_update_sprite()
 	if damage_flash:
 		damage_flash.queue_free()
@@ -63,6 +67,26 @@ func _setup_sprite() -> void:
 	
 	add_child(spr)
 	move_child(spr, 0)
+
+
+func _setup_dive_trail() -> void:
+	# Rastro de partículas exibido durante o mergulho (paraquedas dobrado)
+	var trail := CPUParticles2D.new()
+	trail.name = "DiveTrail"
+	trail.position = Vector2(0, -10)
+	trail.emitting = false
+	trail.amount = 24
+	trail.lifetime = 0.4
+	trail.direction = Vector2(0, -1)
+	trail.spread = 20.0
+	trail.initial_velocity_min = 40.0
+	trail.initial_velocity_max = 80.0
+	trail.gravity = Vector2.ZERO
+	trail.scale_amount_min = 1.5
+	trail.scale_amount_max = 3.0
+	trail.color = Color(0.6, 0.8, 1.0, 0.7)
+	add_child(trail)
+	_dive_trail = trail
 
 
 func _physics_process(delta: float) -> void:
@@ -99,7 +123,10 @@ func _handle_vertical() -> void:
 	if is_captured:
 		velocity.y = -tractor_pull_speed
 		return
+	var was_folded: bool = is_chute_folded
 	is_chute_folded = Input.is_action_pressed("fold_chute")
+	if is_chute_folded and not was_folded:
+		AudioManager.play_sfx("whoosh")
 	_update_sprite()
 	var target_fall: float = fall_speed_folded if is_chute_folded else fall_speed_open
 	velocity.y = target_fall
@@ -136,6 +163,7 @@ func deactivate_shield() -> void:
 func take_damage() -> void:
 	if _invincible or is_dead or is_landed:
 		return
+	AudioManager.play_sfx("hit")
 	if shield_active:
 		deactivate_shield()
 		_flash_damage()
@@ -208,6 +236,9 @@ func land(landing_speed: float) -> void:
 func die() -> void:
 	is_dead = true
 	velocity = Vector2.ZERO
+	if _dive_trail:
+		_dive_trail.emitting = false
+	Effects.spawn_burst(get_tree().current_scene, global_position, Color(1.0, 0.4, 0.1), 24, 260.0, 0.7)
 	# AnimationPlayer pode não ter animação 'death'; ignoramos se não existir
 	var anim_player: AnimationPlayer = $AnimationPlayer
 	if anim_player and anim_player.has_animation("death"):
@@ -223,7 +254,10 @@ func _update_sprite() -> void:
 			main_spr.scale = Vector2(0.10, 0.17) # Efeito esticado para o mergulho
 		else:
 			main_spr.scale = Vector2(0.14, 0.14) # Normal
-			
+
+	if _dive_trail:
+		_dive_trail.emitting = is_chute_folded
+
 	emit_signal("chute_folded", is_chute_folded)
 
 

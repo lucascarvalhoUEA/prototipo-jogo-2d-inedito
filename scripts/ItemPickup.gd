@@ -66,6 +66,9 @@ func _update_visual() -> void:
 func _on_body_entered(body: Node) -> void:
 	if not body.is_in_group("player"):
 		return
+	var color: Color = TYPE_DATA[int(item_type)]["color"]
+	AudioManager.play_sfx("pickup")
+	Effects.spawn_burst(get_tree().current_scene, global_position, color, 14, 160.0, 0.5)
 	_apply_effect(body)
 	_show_pickup_text()
 	queue_free()

@@ -22,6 +22,7 @@ func _ready() -> void:
 	GameManager.phase_complete.connect(_on_phase_complete)
 	player.hit_by_alien.connect(_on_player_hit_by_alien)
 	GameManager.start_new_game()
+	AudioManager.play_music()
 	_setup_background()
 	_setup_landing_zone()
 	
@@ -92,9 +93,11 @@ func _on_player_landed(landing_speed: float) -> void:
 
 	# Se aterrissar rápido demais (esmagando o botão para baixo), espatifa e perde vida!
 	if landing_speed > 350.0:
+		AudioManager.play_sfx("crash")
 		_handle_life_lost("ESPATIFOU!")
 		return
 
+	AudioManager.play_sfx("thud")
 	var dist: float = abs(player.global_position.x - landing_zone.global_position.x)
 	var bonus: int
 	
